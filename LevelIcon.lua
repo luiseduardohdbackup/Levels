@@ -7,28 +7,23 @@
 -- Each individual part of the icon is a sprite and so can be individually 
 -- animated
 ------------------------------------------------------------------------------------------------- 
-local class = {}
+local class = {};
 
 -- Import all necessary requires.
-local json = require("json")
-local analytics = require("analytics")
+local json = require("json");
+local analytics = require("analytics");
 
 -- Forward Declarations
-local layout = nil
 
 -- local vars
-local icon = nil
-local lockData = nil
-local iconData = nil
-local starData = nil
-local iconSpriteSheet = nil
-local starSpriteSheet = nil
-local lockSpriteSheet = nil
-local star1Sprite = nil
-local star2Sprite = nil
-local star3Sprite = nil
-local lockSprite = nil
-local iconSprite = nil
+
+-- Icon sprite sheets and sprite frame/animation data 
+local lockData = nil;
+local iconData = nil;
+local starData = nil;
+local iconSpriteSheet = nil;
+local starSpriteSheet = nil;
+local lockSpriteSheet = nil;
  
 
 ------------------------------------------------------------------------------------
@@ -41,28 +36,36 @@ local iconSprite = nil
 --@Returns: new instance.
 ------------------------------------------------------------------------------------
 function class:new( _p, argTable )
-    _p = _p or {}
-    setmetatable( _p, self )
+    _p = _p or {};
+    setmetatable( _p, self );
     
-    self.__index = self
+    self.__index = self;
 
     -- Initialise the level status
-    self.star1 = argTable.star1
-    self.star2 = argTable.star2
-    self.star3 = argTable.star3
+    self.star1 = argTable.star1;
+    self.star2 = argTable.star2;
+    self.star3 = argTable.star3;
     
-    self.score = argTable.score
-    self.locked = argTable.lockStatus
+    self.score = argTable.score;
+    self.locked = argTable.lockStatus;
     
-    data = system.pathForFile( "config.json", system.ResourceDirectory )
+    self.star1Sprite = nil;     -- Star 1
+    self.star2Sprite = nil;     -- Star 2
+    self.star3Sprite = nil;     -- Star 3
+    self.lockSprite = nil;      -- Lock
+    self.iconSprite = nil;      -- Icon background
+    
+    self.icon = nil;             -- Display group of the icon
+    
+    data = system.pathForFile( "config.json", system.ResourceDirectory );
         
-    local fileHandle = io.open("config.json", "r")
-    local  configData = fileHandle:read("*a")
-    io.close( fileHandle )
+    local fileHandle = io.open("config.json", "r");
+    local  configData = fileHandle:read("*a");
+    io.close( fileHandle );
         
-    self.configData = json.decode( data )
+    self.configData = json.decode( data );
     
-    return _p
+    return _p;
 end 
 
 ------------------------------------------------------------------------------------
@@ -75,46 +78,46 @@ end
 --@Returns: new instance.
 ------------------------------------------------------------------------------------
 function class:Draw()
-    iconData = require( "IconData" )
-    starData = require( "StarData" )
-    lockData = require( "LockData" )
+    iconData = require( "IconData" );
+    starData = require( "StarData" );
+    lockData = require( "LockData" );
     
-    iconSpriteSheet = graphics.newImageSheet("IconSprite.png", "LevelManager", iconData.getSheet())
-    starSpriteSheet = graphics.newImageSheet("StarSprite.png", "LevelManager", starData.getSheet())
-    lockSpriteSheet = graphics.newImageSheet("LockSprite.png", "LevelManager", lockData.getSheet())
+    iconSpriteSheet = graphics.newImageSheet("IconSprite.png", "LevelManager", iconData.getSheet());
+    starSpriteSheet = graphics.newImageSheet("StarSprite.png", "LevelManager", starData.getSheet());
+    lockSpriteSheet = graphics.newImageSheet("LockSprite.png", "LevelManager", lockData.getSheet());
     
-    icon = display.newGroup( )
-    icon:insert( iconSprite )
+    self.icon = display.newGroup( );
+    self.icon:insert( self.iconSprite );
     
     -- Set the stars to on or off depending on the level status
-    iconSprite = display.newSprite( iconSpriteSheet, starData.sequenceData() )
-    star1Sprite = display.newSprite( starSpriteSheet, starData.sequenceData() )
-    star2Sprite = display.newSprite( starSpriteSheet, starData.sequenceData() )
-    star3Sprite = display.newSprite( starSpriteSheet, starData.sequenceData() )
+    self.iconSprite = display.newSprite( iconSpriteSheet, starData.sequenceData() );
+    self.star1Sprite = display.newSprite( starSpriteSheet, starData.sequenceData() );
+    self.star2Sprite = display.newSprite( starSpriteSheet, starData.sequenceData() );
+    self.star3Sprite = display.newSprite( starSpriteSheet, starData.sequenceData() );
     
-    star1Sprite:setSequence(self.star1)
-    star1Sprite:play()
+    self.star1Sprite:setSequence(self.star1);
+    self.star1Sprite:play();
     
-    star2Sprite:setSequence(self.star1)
-    star2Sprite:play()
+    self.star2Sprite:setSequence(self.star2);
+    self.star2Sprite:play();
     
-    star3Sprite:setSequence(self.star1)
-    star3Sprite:play()
+    self.star3Sprite:setSequence(self.star3);
+    self.star3Sprite:play();
    
-    icon:insert( star1Sprite )
-    icon:insert( star2Sprite )
-    icon:insert( star3Sprite )
+    self.icon:insert( self.star1Sprite );
+    self.icon:insert( self.star2Sprite );
+    self.icon:insert( self.star3Sprite );
     
     -- If this level is locked then display the lock icon
     if self.locked then
-        lockSprite =  display.newSprite( lockSpriteSheet, starData.sequenceData() )
-        lockSprite:setSequence("locked")
-        lockSprite:play()
+        self.lockSprite =  display.newSprite( lockSpriteSheet, starData.sequenceData() );
+        self.lockSprite:setSequence("locked");
+        self.lockSprite:play();
         
-        icon:insert( lockSprite )
+        self.icon:insert( self.lockSprite );
     end
     
-    layout( self )
+    self:layout( );
 end
 
 ------------------------------------------------------------------------------------
@@ -125,24 +128,69 @@ end
 -- relative (x,y) position of star
 -- relative (x,y) position of the lock  
 ------------------------------------------------------------------------------------
---@Param: _p inheritance using metatables
---@Param: argTable table of any additional arguments we want to pass to this class. 
---@Returns: new instance.
+--@Param: levelIcon reference to this icon
+--@Returns:
 ------------------------------------------------------------------------------------
-layout = function( levelIcon )
+function class:layout( )
     -- position the stars within the icon
-    star1Sprite.x = levelIcon.configData.star1.x
-    star1Sprite.y = levelIcon.configData.star1.y
-    star2Sprite.x = levelIcon.configData.star2.x
-    star2Sprite.y = levelIcon.configData.star2.y
-    star3Sprite.x = levelIcon.configData.star3.x
-    star3Sprite.y = levelIcon.configData.star3.y
+    self.star1Sprite.x = self.configData.star1.x;
+    self.star1Sprite.y = self.configData.star1.y;
+    self.star2Sprite.x = self.configData.star2.x;
+    self.star2Sprite.y = self.configData.star2.y;
+    self.star3Sprite.x = self.configData.star3.x;
+    self.star3Sprite.y = self.configData.star3.y;
     
-    -- If the icon is locked then position the lock image
-    if levelIcon.locked and lockSprite ~= nil then
-        lockSprite.x = levelIcon.configData.lock.x
-        lockSprite.y = levelIcon.configData.lock.y      
+    -- If the icon is locked and it has a valid sprite then position the lock image
+    if self.locked and self.lockSprite ~= nil then
+        self.lockSprite.x = self.configData.lock.x;
+        self.lockSprite.y = self.configData.lock.y;
     end
 end
+
+------------------------------------------------------------------------------------
+-- setStars
+-- 
+-- Set the state of the stars. Note that this method allows for individual stars
+-- to be activated or deactivated so that the player can potentially win stars 2 and 
+-- 3 while missing out on star 1. This is significant for some games where stars are 
+-- individually won based on different criteria and not just a score ladder. 
+------------------------------------------------------------------------------------
+--@Param: star1 star 1 setting
+--@Param: star2 star 2 setting
+--@Param: star3 star 3 setting 
+--@Returns:
+------------------------------------------------------------------------------------
+function class:setStars( star1, star2, star3 )
+    self.star1Sprite:setSequence( star1 );
+    self.star1Sprite:play();
+    
+    self.star2Sprite:setSequence( star2 );
+    self.star2Sprite:play();
+    
+    self.star3Sprite:setSequence( star3 );
+    self.star3Sprite:play();
+    
+    -- Update the stored states of the stars
+    self.star1 = star1;
+    self.star2 = star2;
+    self.star3 = star3;   
+end
+
+------------------------------------------------------------------------------------
+-- setLock
+-- 
+-- Activate or deactivate the level lock icon.  
+------------------------------------------------------------------------------------
+--@Param: star1 star 1 setting
+--@Param: star2 star 2 setting
+--@Param: star3 star 3 setting 
+--@Returns:
+------------------------------------------------------------------------------------
+function class:setLock( lock )
+    self.lock = lock;
+    self.lockSprite.setSequence( self.lock );
+    self.lockSprite:play();
+end
+
 
 return class
