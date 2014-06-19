@@ -1,0 +1,31 @@
+{
+    "LevelManager" :
+    {
+        "Levels":
+        {
+            "GroupSettings" :
+            [{
+                "Type": "Grid",
+                "Info": 
+                {
+                    "Rows": 3,
+                    "Columns": 3
+                },
+                "IconData" : "iconBlue",
+                "IconSheet" : "iconBlue.png",
+                "LockData" : "lockBlue",
+                "LockSheet" : "lockBoue.png",
+                "StarData" : "starBlue",
+                "StarSheet" : "starBlue.png",
+                "star1X" : 0,
+                "star1Y" : 0,
+                "star1X" : 0,
+                "star1Y" : 0,
+                "star1X" : 0,
+                "star1Y" : 0,
+                "lockX" : 0,
+                "lockY" : 0
+            }]
+        }
+    }
+}

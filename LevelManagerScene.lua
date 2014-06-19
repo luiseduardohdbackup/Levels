@@ -54,6 +54,14 @@ function scene:create( event )
             controllers[4] = inputDevices[deviceIndex]
         end    
     end
+    
+    data = system.pathForFile( "config.json", system.ResourceDirectory );
+        
+    local fileHandle = io.open("config.json", "r");
+    local  configData = fileHandle:read("*a");
+    io.close( fileHandle );
+        
+    self.configData = json.decode( data );
 end
 
 

@@ -15,16 +15,8 @@ local analytics = require("analytics");
 
 -- Forward Declarations
 
--- local vars
 
--- Icon sprite sheets and sprite frame/animation data 
-local lockData = nil;
-local iconData = nil;
-local starData = nil;
-local iconSpriteSheet = nil;
-local starSpriteSheet = nil;
-local lockSpriteSheet = nil;
- 
+-- local vars
 
 ------------------------------------------------------------------------------------
 -- New
@@ -49,21 +41,25 @@ function class:new( _p, argTable )
     self.score = argTable.score;
     self.locked = argTable.lockStatus;
     
+    self.iconConfig = argTable.iconConfig
+    
     self.star1Sprite = nil;     -- Star 1
     self.star2Sprite = nil;     -- Star 2
     self.star3Sprite = nil;     -- Star 3
     self.lockSprite = nil;      -- Lock
     self.iconSprite = nil;      -- Icon background
     
-    self.icon = nil;             -- Display group of the icon
+    self.icon = nil;            -- Display group of the icon
     
-    data = system.pathForFile( "config.json", system.ResourceDirectory );
-        
-    local fileHandle = io.open("config.json", "r");
-    local  configData = fileHandle:read("*a");
-    io.close( fileHandle );
-        
-    self.configData = json.decode( data );
+    local baseDir = argTable.baseDir
+    
+    -- Setup spritesheets and sequence data for each element
+    self.iconData = require( argTable.iconData )
+    self.lockData = require( argTable.lockData )
+    self.starData = require( argTable.starData )
+    self.iconSpriteSheet = graphics.newImageSheet( argTable.iconSpriteSheet, baseDir, self.iconData:getSheet());
+    self.starSpriteSheet = graphics.newImageSheet( argTable.starSpriteSheet, baseDir, self.starData:getSheet());
+    self.lockSpriteSheet = graphics.newImageSheet( argTable.lockSpriteSheet, baseDir, self.lockData:getSheet());
     
     return _p;
 end 
@@ -77,32 +73,16 @@ end
 --@Param: argTable table of any additional arguments we want to pass to this class. 
 --@Returns: new instance.
 ------------------------------------------------------------------------------------
-function class:Draw()
-    iconData = require( "IconData" );
-    starData = require( "StarData" );
-    lockData = require( "LockData" );
-    
-    iconSpriteSheet = graphics.newImageSheet("IconSprite.png", "LevelManager", iconData.getSheet());
-    starSpriteSheet = graphics.newImageSheet("StarSprite.png", "LevelManager", starData.getSheet());
-    lockSpriteSheet = graphics.newImageSheet("LockSprite.png", "LevelManager", lockData.getSheet());
+function class:init()
     
     self.icon = display.newGroup( );
     self.icon:insert( self.iconSprite );
     
     -- Set the stars to on or off depending on the level status
-    self.iconSprite = display.newSprite( iconSpriteSheet, starData.sequenceData() );
-    self.star1Sprite = display.newSprite( starSpriteSheet, starData.sequenceData() );
-    self.star2Sprite = display.newSprite( starSpriteSheet, starData.sequenceData() );
-    self.star3Sprite = display.newSprite( starSpriteSheet, starData.sequenceData() );
-    
-    self.star1Sprite:setSequence(self.star1);
-    self.star1Sprite:play();
-    
-    self.star2Sprite:setSequence(self.star2);
-    self.star2Sprite:play();
-    
-    self.star3Sprite:setSequence(self.star3);
-    self.star3Sprite:play();
+    self.iconSprite = display.newSprite( self.iconSpriteSheet, self.starData.sequenceData() );
+    self.star1Sprite = display.newSprite( self.starSpriteSheet, self.starData.sequenceData() );
+    self.star2Sprite = display.newSprite( self.starSpriteSheet, self.starData.sequenceData() );
+    self.star3Sprite = display.newSprite( self.starSpriteSheet, self.starData.sequenceData() );
    
     self.icon:insert( self.star1Sprite );
     self.icon:insert( self.star2Sprite );
@@ -110,14 +90,14 @@ function class:Draw()
     
     -- If this level is locked then display the lock icon
     if self.locked then
-        self.lockSprite =  display.newSprite( lockSpriteSheet, starData.sequenceData() );
+        self.lockSprite =  display.newSprite( self.lockSpriteSheet, self.starData.sequenceData() );
         self.lockSprite:setSequence("locked");
         self.lockSprite:play();
         
         self.icon:insert( self.lockSprite );
     end
     
-    self:layout( );
+    self:draw( );
 end
 
 ------------------------------------------------------------------------------------
@@ -131,19 +111,31 @@ end
 --@Param: levelIcon reference to this icon
 --@Returns:
 ------------------------------------------------------------------------------------
-function class:layout( )
+function class:draw( )
     -- position the stars within the icon
-    self.star1Sprite.x = self.configData.star1.x;
-    self.star1Sprite.y = self.configData.star1.y;
-    self.star2Sprite.x = self.configData.star2.x;
-    self.star2Sprite.y = self.configData.star2.y;
-    self.star3Sprite.x = self.configData.star3.x;
-    self.star3Sprite.y = self.configData.star3.y;
+    self.star1Sprite.x = self.iconConfig.star1.x;
+    self.star1Sprite.y = self.iconConfig.star1.y;
+    self.star2Sprite.x = self.iconConfig.star2.x;
+    self.star2Sprite.y = self.iconConfig.star2.y;
+    self.star3Sprite.x = self.iconConfig.star3.x;
+    self.star3Sprite.y = self.iconConfig.star3.y;
+    
+    self.star1Sprite:setSequence(self.star1.anim);
+    self.star1Sprite:play();
+    
+    self.star2Sprite:setSequence(self.star2.anim);
+    self.star2Sprite:play();
+    
+    self.star3Sprite:setSequence(self.star3.anim);
+    self.star3Sprite:play();
     
     -- If the icon is locked and it has a valid sprite then position the lock image
     if self.locked and self.lockSprite ~= nil then
-        self.lockSprite.x = self.configData.lock.x;
-        self.lockSprite.y = self.configData.lock.y;
+        self.lockSprite.x = self.iconConfig.lock.x;
+        self.lockSprite.y = self.iconConfig.lock.y;
+        
+        self.lockSprite:setSequence( self.lock.anim );
+        self.lockSprite:play();
     end
 end
 
@@ -161,13 +153,13 @@ end
 --@Returns:
 ------------------------------------------------------------------------------------
 function class:setStars( star1, star2, star3 )
-    self.star1Sprite:setSequence( star1 );
+    self.star1Sprite:setSequence( star1.anim );
     self.star1Sprite:play();
     
-    self.star2Sprite:setSequence( star2 );
+    self.star2Sprite:setSequence( star2.anim );
     self.star2Sprite:play();
     
-    self.star3Sprite:setSequence( star3 );
+    self.star3Sprite:setSequence( star3.anim );
     self.star3Sprite:play();
     
     -- Update the stored states of the stars
@@ -188,9 +180,8 @@ end
 ------------------------------------------------------------------------------------
 function class:setLock( lock )
     self.lock = lock;
-    self.lockSprite.setSequence( self.lock );
+    self.lockSprite.setSequence( self.lock.anim );
     self.lockSprite:play();
 end
-
 
 return class
