@@ -72,66 +72,53 @@ local function NetworkListener( event )
         --native.showAlert( "Netmera", event.response, {"OK"})    
     end
 end
- 
-------------------------------------------------------------------------------------
--- registerDevice
--- 
--- Register this device with the push service.
-------------------------------------------------------------------------------------
---@Param: deviceToken The device ID used by the push server to register a unique user
---@Returns:
-------------------------------------------------------------------------------------
-local function registerDevice(deviceToken)  
-        local headers = {}
-        headers["X-netmera-api-key"] = APIKEY
-        headers["Content-Type"] = "application/json"
- 
- 
-        commands_json =
-            {
-             ["registrationId"] = deviceToken,
-             ["platform"] = "ANDROID",
-             ["tags"] = {"tag1", "tag2"},                
-            }        
- 
-        postData = json.encode(commands_json)
-        print("postData: " .. postData)
-        data = ""
-        local params = {}
-        params.headers = headers
-        params.body = postData
-        network.request( "http://api.netmera.com/push/1.1/registration" ,"POST", NetworkListener,  params)
-end
+
  
 ------------------------------------------------------------------------------------
 -- onNotification
 -- 
--- Initiate the game. display the animated main menu.
+-- Diosplay the push notification.
 ------------------------------------------------------------------------------------
 --@Param: event
 --@Returns:
 ------------------------------------------------------------------------------------
-local function onNotification( event )    
-    if event.type == "remoteRegistration" then        
-        registerDevice(event.token)    
-    elseif event.type == "remote" then    
-        -- The code below will only trigger if the app is alive and kicking
-        -- *************************************************************************    
-        -- native.showAlert( "remote", json.encode( event ), { "OK" } )    
-        --[[ notification table contains:    
-        launchArgs.notification.type - "remote"    
-        launchArgs.notification.name - "notification"    
-        launchArgs.notification.sound - "sound file or 'default'"    
-        launchArgs.notification.alert - "message specified during push"    
-        launchArgs.notification.badge - "5" -- badge value that was sent    
-        launchArgs.notification.applicationstate - "inactive"    --]]   
-        if event.custom and event.custom["link"] then
-            urlPath = event.custom["link"]
+local function onNotification( event )
+    if event.type == "remoteRegistration" then
+        local PushToken = event.token
+        local PW_APPLICATION = "PUHSOOWH_APPLICATION_ID"    // use your app id in pushwoosh
+        local PW_URL = "https://cp.pushwoosh.com/json/1.3/registerDevice"
+ 
+        local deviceType = 1 // default to iOS
+        if ( system.getInfo("platformName") == "Android" ) then
+                deviceType = 3
         end
-        
-        native.showAlert( "Hello!", event.alert, { "OK", "CANCEL" }, onComplete )   
+ 
+        local commands_json =
+                        {
+                             ["request"] = {
+                                ["application"] = PW_APPLICATION,
+                                ["push_token"] = PushToken,
+                                ["language"] = system.getPreference("ui", "language"),
+                                ["hwid"] = system.getInfo("deviceID"),
+                                ["timezone"] = 3600, // offset in seconds
+                                ["device_type"] = deviceType
+                            }
+                        }
+          
+                    local jsonvar = {}
+                    jsonvar = json.encode(commands_json)
+ 
+                    local post = jsonvar 
+                    local headers = {} 
+                        headers["Content-Type"] = "application/json"
+                        headers["Accept-Language"] = "en-US"
+                    local params = {}
+                        params.headers = headers
+                        params.body = post 
+                    network.request ( PW_URL, "POST", networkListener, params )
     end
 end
+
 
 ------------------------------------------------------------------------------------
 -- onAlertComplete
@@ -164,5 +151,5 @@ end
 -- seed the random generator
 math.randomseed(os.time());
 
--- play the intro movie.
-media.playVideo( "Ladybird.mp4", false, onIntroComplete )
+-- play the splash movie.
+media.playVideo( "splash.mp4", false, onIntroComplete )

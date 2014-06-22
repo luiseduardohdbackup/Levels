@@ -1,4 +1,5 @@
 local composer = require("composer")
+local levelManager n= require("levelManager")
 
 local scene = composer.newScene()
 
@@ -7,7 +8,7 @@ local inputDevices = system.getInputDevices()
 local controllers = {}
 
 -- local forward references should go here --
-
+local onfail = nil;
 
 ---------------------------------------------------------------------------------
 -- BEGINNING OF IMPLEMENTATION
@@ -55,13 +56,23 @@ function scene:create( event )
         end    
     end
     
+    -- Create a level manager for our game. We need to passs in the config file.
+    -- We load the file here and if successful, we initialise the game levels.
     data = system.pathForFile( "config.json", system.ResourceDirectory );
         
     local fileHandle = io.open("config.json", "r");
     local  configData = fileHandle:read("*a");
     io.close( fileHandle );
+    
+    if configData ~= nil then
+        -- We have retrieved the config file
+        self.configData = json.decode( data );
         
-    self.configData = json.decode( data );
+        game = levelManager:new( configData );
+        game.Start();
+    else
+        native.showAlert( "Error!", "Game data failed to load", { "OK" }, onFail );
+    end
 end
 
 

@@ -7,7 +7,29 @@ local widget = require "widget"
 local composer = require( "composer" )
 
 local scene = composer.newScene()
- 
+
+-- Load menu sprite data
+local menuData = require("menuSpriteData")
+
+-- input controller commands and listeners
+local inputDevices = system.getInputDevices()
+local controllers = {}
+
+-- local forward references should go here --
+
+
+---------------------------------------------------------------------------------
+-- BEGINNING OF IMPLEMENTATION
+---------------------------------------------------------------------------------
+
+function onKeyEvent( event )
+    
+end
+
+function onInputdeviceStatusChanged( event )
+    
+end
+
 
 ------------------------------------------------------------------------------------
 -- create
@@ -19,9 +41,79 @@ local scene = composer.newScene()
 ------------------------------------------------------------------------------------
 function scene:create( event )
     local sceneGroup = self.view
-
-    -- Initialize the scene here.
+    
+    -- check which devices we have (if any)
+    for deviceIndex = 1, #inputDevices do
+        print( deviceIndex, "canVibrate", inputDevices[deviceIndex].canVibrate )
+        print( deviceIndex, "connectionState", inputDevices[deviceIndex].connectionState )
+        print( deviceIndex, "descriptor", inputDevices[deviceIndex].descriptor )
+        print( deviceIndex, "displayName", inputDevices[deviceIndex].displayName )
+        print( deviceIndex, "isConnected", inputDevices[deviceIndex].isConnected )
+        print( deviceIndex, "type", inputDevices[deviceIndex].type )
+        print( deviceIndex, "permenantid", tostring(inputDevices[deviceIndex].permanentId) )
+        print( deviceIndex, "andoridDeviceid", inputDevices[deviceIndex].androidDeviceId ) 
+        
+        if inputDevices[deviceIndex].descriptor == "Joystick 1" then
+            controllers[1] = inputDevices[deviceIndex]
+        elseif inputDevices[deviceIndex].descriptor == "Joystick 2" then
+            controllers[2] = inputDevices[deviceIndex]
+        elseif inputDevices[deviceIndex].descriptor == "Joystick 3" then
+            controllers[3] = inputDevices[deviceIndex]
+        elseif inputDevices[deviceIndex].descriptor == "Joystick 4" then
+            controllers[4] = inputDevices[deviceIndex]
+        end    
+    end
+    
+    -- Display the main menu background image
+    local background = display.newImageRect( "mainMenuBackground.png", "Menu")
+    background.x =  (display.contentWidth / 2) - ( background.width / 2 );
+    
+    -- get te sprites for the menu
+    local menuSpriteSheet = graphics.newImageSheet("menuSprites", "Menu", menuData.getSheet())
+    
+    -- Load all menu sprites
+    local playButton = widget.newButton
+    {
+        sheet = menuSpriteSheet,
+        defaultFrame = menuData.getFrame( "PlayButton"),
+        overFrame = menuData.getFrame( "PlayButtonOver"),
+        width = 300,
+        height = 300,
+        onRelease = onPlayReleased
+    }
+    
+    local optionButton = widget.newButton
+    {
+        sheet = menuSpriteSheet,
+        defaultFrame = menuData.getFrame( "OptionButton"),
+        overFrame = menuData.getFrame( "OptionButtonOver"),
+        width = 300,
+        height = 300,
+        onRelease = onOptionReleased
+    }
+    
+    local infoButton = widget.newButton
+    {
+        sheet = menuSpriteSheet,
+        defaultFrame = menuData.getFrame( "InfoButton"),
+        overFrame = menuData.getFrame( "InfoButtonOver"),
+        width = 300,
+        height = 300,
+        onRelease = onInfoReleased
+    }
+    
+    -- positon menu items
+    
+    
+    -- add menu items to view
+    sceneGroup:insert( playButton );
+    sceneGroup:insert( optionButton );
+    sceneGroup:insert( infoButton );
+    
+    -- Add trhe dynamic animations to the menu to give it some pop.
+    animateMenu()
 end
+
 
 ------------------------------------------------------------------------------------
 -- show
@@ -47,6 +139,7 @@ function scene:show( event )
    end
 end
 
+
 ------------------------------------------------------------------------------------
 -- hide
 -- 
@@ -71,6 +164,7 @@ function scene:hide( event )
    end
 end
 
+
 ------------------------------------------------------------------------------------
 -- destroy
 -- 
@@ -90,14 +184,24 @@ function scene:destroy( event )
 end
 
 ---------------------------------------------------------------------------------
+-- END OF IMPLEMENTATION
+---------------------------------------------------------------------------------
 
--- Listener setup
+-- "create" event is dispatched if scene's view does not exist
 scene:addEventListener( "create", scene )
+
+-- "show" event is dispatched before scene transition begins
 scene:addEventListener( "show", scene )
+
+-- "hide" event is dispatched whenever scene transition has finished
 scene:addEventListener( "hide", scene )
+
+-- "destroy" event is dispatched before view is unloaded.
 scene:addEventListener( "destroy", scene )
 
 ---------------------------------------------------------------------------------
-Runtime:addEventListener("enterFrame", onFrame)
+
+Runtime:addEventListener( "key", onKeyEvent )
+Runtime:addEventListener( "inputDevicestatus", onInputdeviceStatusChanged )
 
 return scene
