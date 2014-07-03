@@ -3,20 +3,27 @@
 -- menu.lua
 --
 -----------------------------------------------------------------------------------------
-local widget = require "widget"
-local composer = require( "composer" )
+local widget = require "widget";
+local composer = require( "composer" );
 
-local scene = composer.newScene()
+local scene = composer.newScene();
 
 -- Load menu sprite data
-local menuData = require("menuSpriteData")
+local menuData = require("menuSpriteData");
 
 -- input controller commands and listeners
-local inputDevices = system.getInputDevices()
-local controllers = {}
+local inputDevices = system.getInputDevices();
+local controllers = {};
 
 -- local forward references should go here --
+local onInfoReleased = nil;
+local onOptionReleased = nil;
+local onPlayReleased = nil;
+local onContinueReleased = nil;
+local animateMenu = nil;
 
+local mouseSquishSound = audio.loadSound( "Audio/mouse_squeak.mp3" );
+-- local ambientMusic = audio.loadSound("Audio/Duke Ellington - Three Blind Mice.mp3");
 
 ---------------------------------------------------------------------------------
 -- BEGINNING OF IMPLEMENTATION
@@ -30,6 +37,70 @@ function onInputdeviceStatusChanged( event )
     
 end
 
+------------------------------------------------------------------------------------
+-- onPlayReleased
+-- 
+-- Start a new game. 
+------------------------------------------------------------------------------------
+--@Param: event
+--@Returns:
+------------------------------------------------------------------------------------
+onPlayReleased = function( event )
+    if event.phase == "pressed" then
+        audio.play( mouseSquishSound )
+    elseif event.phase == "release" then
+        composer.gotoScene( "Game" )
+    end
+end
+
+------------------------------------------------------------------------------------
+-- onContinueReleased
+-- 
+-- Continue with a previously suspended game
+------------------------------------------------------------------------------------
+--@Param: event
+--@Returns:
+------------------------------------------------------------------------------------
+onContinueReleased = function( event )
+    if event.phase == "pressed" then
+        audio.play( mouseSquishSound )
+    elseif event.phase == "release" then
+        composer.gotoScene( "Game" )
+    end    
+end
+
+------------------------------------------------------------------------------------
+-- onInfoReleased
+-- 
+-- Show the instructions and information screen 
+------------------------------------------------------------------------------------
+--@Param: event
+--@Returns:
+------------------------------------------------------------------------------------
+onInfoReleased = function( event )
+    if event.phase == "pressed" then
+        audio.play( mouseSquishSound )
+    elseif event.phase == "release" then
+        composer.gotoScene( "Information" )
+    end    
+end
+
+------------------------------------------------------------------------------------
+-- onOptionReleased
+-- 
+-- Bring up the game options when the options button is pressed and released
+------------------------------------------------------------------------------------
+--@Param: event
+--@Returns:
+------------------------------------------------------------------------------------
+onOptionReleased = function( event )
+    if event.phase == "pressed" then
+        audio.play( mouseSquishSound )
+    elseif event.phase == "release" then
+        composer.gotoScene( "Options" )
+    end    
+end
+
 
 ------------------------------------------------------------------------------------
 -- create
@@ -40,66 +111,76 @@ end
 --@Returns:
 ------------------------------------------------------------------------------------
 function scene:create( event )
-    local sceneGroup = self.view
+    local sceneGroup = self.view;
     
     -- check which devices we have (if any)
     for deviceIndex = 1, #inputDevices do
-        print( deviceIndex, "canVibrate", inputDevices[deviceIndex].canVibrate )
-        print( deviceIndex, "connectionState", inputDevices[deviceIndex].connectionState )
-        print( deviceIndex, "descriptor", inputDevices[deviceIndex].descriptor )
-        print( deviceIndex, "displayName", inputDevices[deviceIndex].displayName )
-        print( deviceIndex, "isConnected", inputDevices[deviceIndex].isConnected )
-        print( deviceIndex, "type", inputDevices[deviceIndex].type )
-        print( deviceIndex, "permenantid", tostring(inputDevices[deviceIndex].permanentId) )
-        print( deviceIndex, "andoridDeviceid", inputDevices[deviceIndex].androidDeviceId ) 
+        print( deviceIndex, "canVibrate", inputDevices[deviceIndex].canVibrate );
+        print( deviceIndex, "connectionState", inputDevices[deviceIndex].connectionState );
+        print( deviceIndex, "descriptor", inputDevices[deviceIndex].descriptor );
+        print( deviceIndex, "displayName", inputDevices[deviceIndex].displayName );
+        print( deviceIndex, "isConnected", inputDevices[deviceIndex].isConnected );
+        print( deviceIndex, "type", inputDevices[deviceIndex].type );
+        print( deviceIndex, "permenantid", tostring(inputDevices[deviceIndex].permanentId) );
+        print( deviceIndex, "andoridDeviceid", inputDevices[deviceIndex].androidDeviceId );
         
         if inputDevices[deviceIndex].descriptor == "Joystick 1" then
-            controllers[1] = inputDevices[deviceIndex]
+            controllers[1] = inputDevices[deviceIndex];
         elseif inputDevices[deviceIndex].descriptor == "Joystick 2" then
-            controllers[2] = inputDevices[deviceIndex]
+            controllers[2] = inputDevices[deviceIndex];
         elseif inputDevices[deviceIndex].descriptor == "Joystick 3" then
-            controllers[3] = inputDevices[deviceIndex]
+            controllers[3] = inputDevices[deviceIndex];
         elseif inputDevices[deviceIndex].descriptor == "Joystick 4" then
-            controllers[4] = inputDevices[deviceIndex]
+            controllers[4] = inputDevices[deviceIndex];
         end    
     end
     
     -- Display the main menu background image
-    local background = display.newImageRect( "mainMenuBackground.png", "Menu")
+    local background = display.newImageRect( "mainMenuBackground.png", "Menu");
     background.x =  (display.contentWidth / 2) - ( background.width / 2 );
     
     -- get te sprites for the menu
-    local menuSpriteSheet = graphics.newImageSheet("menuSprites", "Menu", menuData.getSheet())
+    local menuSpriteSheet = graphics.newImageSheet("menuSprites", "Menu", menuData.getSheet());
     
-    -- Load all menu sprites
+    -- Load all menu buttons
     local playButton = widget.newButton
     {
         sheet = menuSpriteSheet,
-        defaultFrame = menuData.getFrame( "PlayButton"),
-        overFrame = menuData.getFrame( "PlayButtonOver"),
+        defaultFrame = menuData.getFrame( "PlayButton" ),
+        overFrame = menuData.getFrame( "PlayButtonOver" ),
         width = 300,
         height = 300,
-        onRelease = onPlayReleased
+        onEvent = onPlayReleased,
+    }
+    
+    local continueButton = widget.newButton
+    {
+        sheet = menuSpriteSheet,
+        defaultFrame = menuData.getFrame( "ContinueButton" ),
+        overFrame = menuData.getFrame( "ContinueButtonOver" ),
+        width = 300,
+        height = 300,
+        onEvent = onContinueReleased
     }
     
     local optionButton = widget.newButton
     {
         sheet = menuSpriteSheet,
-        defaultFrame = menuData.getFrame( "OptionButton"),
-        overFrame = menuData.getFrame( "OptionButtonOver"),
+        defaultFrame = menuData.getFrame( "OptionButton" ),
+        overFrame = menuData.getFrame( "OptionButtonOver" ),
         width = 300,
         height = 300,
-        onRelease = onOptionReleased
+        onEvent = onOptionReleased
     }
     
     local infoButton = widget.newButton
     {
         sheet = menuSpriteSheet,
-        defaultFrame = menuData.getFrame( "InfoButton"),
-        overFrame = menuData.getFrame( "InfoButtonOver"),
+        defaultFrame = menuData.getFrame( "InfoButton" ),
+        overFrame = menuData.getFrame( "InfoButtonOver" ),
         width = 300,
         height = 300,
-        onRelease = onInfoReleased
+        onEvent = onInfoReleased
     }
     
     -- positon menu items
@@ -107,11 +188,12 @@ function scene:create( event )
     
     -- add menu items to view
     sceneGroup:insert( playButton );
+    sceneGroup:insert( continueButton );
     sceneGroup:insert( optionButton );
     sceneGroup:insert( infoButton );
     
-    -- Add trhe dynamic animations to the menu to give it some pop.
-    animateMenu()
+    -- Add the dynamic animations to the menu to give it some pop.
+    animateMenu();
 end
 
 
@@ -127,8 +209,8 @@ end
 ------------------------------------------------------------------------------------
 function scene:show( event )
 
-   local sceneGroup = self.view
-   local phase = event.phase
+   local sceneGroup = self.view;
+   local phase = event.phase;
 
    if ( phase == "will" ) then
       -- Called when the scene is still off screen (but is about to come on screen).
@@ -152,8 +234,8 @@ end
 ------------------------------------------------------------------------------------
 function scene:hide( event )
 
-   local sceneGroup = self.view
-   local phase = event.phase
+   local sceneGroup = self.view;
+   local phase = event.phase;
 
    if ( phase == "will" ) then
       -- Called when the scene is on screen (but is about to go off screen).
@@ -176,7 +258,7 @@ end
 ------------------------------------------------------------------------------------
 function scene:destroy( event )
 
-   local sceneGroup = self.view
+   local sceneGroup = self.view;
 
    -- Called prior to the removal of scene's view ("sceneGroup").
    -- Insert code here to clean up the scene.
@@ -188,20 +270,20 @@ end
 ---------------------------------------------------------------------------------
 
 -- "create" event is dispatched if scene's view does not exist
-scene:addEventListener( "create", scene )
+scene:addEventListener( "create", scene );
 
 -- "show" event is dispatched before scene transition begins
-scene:addEventListener( "show", scene )
+scene:addEventListener( "show", scene );
 
 -- "hide" event is dispatched whenever scene transition has finished
-scene:addEventListener( "hide", scene )
+scene:addEventListener( "hide", scene );
 
 -- "destroy" event is dispatched before view is unloaded.
-scene:addEventListener( "destroy", scene )
+scene:addEventListener( "destroy", scene );
 
 ---------------------------------------------------------------------------------
 
-Runtime:addEventListener( "key", onKeyEvent )
-Runtime:addEventListener( "inputDevicestatus", onInputdeviceStatusChanged )
+Runtime:addEventListener( "key", onKeyEvent );
+Runtime:addEventListener( "inputDevicestatus", onInputdeviceStatusChanged );
 
-return scene
+return scene;
