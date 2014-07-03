@@ -5,6 +5,7 @@
 -----------------------------------------------------------------------------------------
 local widget = require "widget";
 local composer = require( "composer" );
+local analytics = require( "analytics" );
 
 local scene = composer.newScene();
 
