@@ -39,28 +39,6 @@ end
 ------------------------------------------------------------------------------------
 function scene:create( event )
     local sceneGroup = self.view
-    
-    -- check which devices we have (if any)
-    for deviceIndex = 1, #inputDevices do
-        print( deviceIndex, "canVibrate", inputDevices[deviceIndex].canVibrate )
-        print( deviceIndex, "connectionState", inputDevices[deviceIndex].connectionState )
-        print( deviceIndex, "descriptor", inputDevices[deviceIndex].descriptor )
-        print( deviceIndex, "displayName", inputDevices[deviceIndex].displayName )
-        print( deviceIndex, "isConnected", inputDevices[deviceIndex].isConnected )
-        print( deviceIndex, "type", inputDevices[deviceIndex].type )
-        print( deviceIndex, "permenantid", tostring(inputDevices[deviceIndex].permanentId) )
-        print( deviceIndex, "andoridDeviceid", inputDevices[deviceIndex].androidDeviceId ) 
-        
-        if inputDevices[deviceIndex].descriptor == "Joystick 1" then
-            controllers[1] = inputDevices[deviceIndex]
-        elseif inputDevices[deviceIndex].descriptor == "Joystick 2" then
-            controllers[2] = inputDevices[deviceIndex]
-        elseif inputDevices[deviceIndex].descriptor == "Joystick 3" then
-            controllers[3] = inputDevices[deviceIndex]
-        elseif inputDevices[deviceIndex].descriptor == "Joystick 4" then
-            controllers[4] = inputDevices[deviceIndex]
-        end    
-    end
 end
 
 
@@ -97,8 +75,8 @@ end
 -- hide
 -- 
 -- Hide the scene i.e. when changing from one scene to the next. There are two 
--- phases for this method. the will phase that occurs when before the scene is 
--- hidden and the did phase that occus after the scene is hidden 
+-- phases for this method. The "will" phase that occurs before the scene is 
+-- hidden and the "did" phase occus after the scene is hidden. 
 ------------------------------------------------------------------------------------
 --@Param: even
 --@Returns:

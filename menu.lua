@@ -22,6 +22,7 @@ local onOptionReleased = nil;
 local onPlayReleased = nil;
 local onContinueReleased = nil;
 local animateMenu = nil;
+local checkControllers = nil;
 
 local mouseSquishSound = audio.loadSound( "Audio/mouse_squeak.mp3" );
 -- local ambientMusic = audio.loadSound("Audio/Duke Ellington - Three Blind Mice.mp3");
@@ -36,6 +37,38 @@ end
 
 function onInputdeviceStatusChanged( event )
     
+end
+
+------------------------------------------------------------------------------------
+-- checkControllers
+-- 
+-- Start a new game. 
+------------------------------------------------------------------------------------
+--@Param: event
+--@Returns:
+------------------------------------------------------------------------------------
+checkControllers = function()
+     -- check which devices we have (if any)
+    for deviceIndex = 1, #inputDevices do
+        print( deviceIndex, "canVibrate", inputDevices[deviceIndex].canVibrate );
+        print( deviceIndex, "connectionState", inputDevices[deviceIndex].connectionState );
+        print( deviceIndex, "descriptor", inputDevices[deviceIndex].descriptor );
+        print( deviceIndex, "displayName", inputDevices[deviceIndex].displayName );
+        print( deviceIndex, "isConnected", inputDevices[deviceIndex].isConnected );
+        print( deviceIndex, "type", inputDevices[deviceIndex].type );
+        print( deviceIndex, "permenantid", tostring(inputDevices[deviceIndex].permanentId) );
+        print( deviceIndex, "andoridDeviceid", inputDevices[deviceIndex].androidDeviceId );
+        
+        if inputDevices[deviceIndex].descriptor == "Joystick 1" then
+            controllers[1] = inputDevices[deviceIndex];
+        elseif inputDevices[deviceIndex].descriptor == "Joystick 2" then
+            controllers[2] = inputDevices[deviceIndex];
+        elseif inputDevices[deviceIndex].descriptor == "Joystick 3" then
+            controllers[3] = inputDevices[deviceIndex];
+        elseif inputDevices[deviceIndex].descriptor == "Joystick 4" then
+            controllers[4] = inputDevices[deviceIndex];
+        end    
+    end
 end
 
 ------------------------------------------------------------------------------------
@@ -113,88 +146,6 @@ end
 ------------------------------------------------------------------------------------
 function scene:create( event )
     local sceneGroup = self.view;
-    
-    -- check which devices we have (if any)
-    for deviceIndex = 1, #inputDevices do
-        print( deviceIndex, "canVibrate", inputDevices[deviceIndex].canVibrate );
-        print( deviceIndex, "connectionState", inputDevices[deviceIndex].connectionState );
-        print( deviceIndex, "descriptor", inputDevices[deviceIndex].descriptor );
-        print( deviceIndex, "displayName", inputDevices[deviceIndex].displayName );
-        print( deviceIndex, "isConnected", inputDevices[deviceIndex].isConnected );
-        print( deviceIndex, "type", inputDevices[deviceIndex].type );
-        print( deviceIndex, "permenantid", tostring(inputDevices[deviceIndex].permanentId) );
-        print( deviceIndex, "andoridDeviceid", inputDevices[deviceIndex].androidDeviceId );
-        
-        if inputDevices[deviceIndex].descriptor == "Joystick 1" then
-            controllers[1] = inputDevices[deviceIndex];
-        elseif inputDevices[deviceIndex].descriptor == "Joystick 2" then
-            controllers[2] = inputDevices[deviceIndex];
-        elseif inputDevices[deviceIndex].descriptor == "Joystick 3" then
-            controllers[3] = inputDevices[deviceIndex];
-        elseif inputDevices[deviceIndex].descriptor == "Joystick 4" then
-            controllers[4] = inputDevices[deviceIndex];
-        end    
-    end
-    
-    -- Display the main menu background image
-    local background = display.newImageRect( "mainMenuBackground.png", "Menu");
-    background.x =  (display.contentWidth / 2) - ( background.width / 2 );
-    
-    -- get te sprites for the menu
-    local menuSpriteSheet = graphics.newImageSheet("menuSprites", "Menu", menuData.getSheet());
-    
-    -- Load all menu buttons
-    local playButton = widget.newButton
-    {
-        sheet = menuSpriteSheet,
-        defaultFrame = menuData.getFrame( "PlayButton" ),
-        overFrame = menuData.getFrame( "PlayButtonOver" ),
-        width = 300,
-        height = 300,
-        onEvent = onPlayReleased,
-    }
-    
-    local continueButton = widget.newButton
-    {
-        sheet = menuSpriteSheet,
-        defaultFrame = menuData.getFrame( "ContinueButton" ),
-        overFrame = menuData.getFrame( "ContinueButtonOver" ),
-        width = 300,
-        height = 300,
-        onEvent = onContinueReleased
-    }
-    
-    local optionButton = widget.newButton
-    {
-        sheet = menuSpriteSheet,
-        defaultFrame = menuData.getFrame( "OptionButton" ),
-        overFrame = menuData.getFrame( "OptionButtonOver" ),
-        width = 300,
-        height = 300,
-        onEvent = onOptionReleased
-    }
-    
-    local infoButton = widget.newButton
-    {
-        sheet = menuSpriteSheet,
-        defaultFrame = menuData.getFrame( "InfoButton" ),
-        overFrame = menuData.getFrame( "InfoButtonOver" ),
-        width = 300,
-        height = 300,
-        onEvent = onInfoReleased
-    }
-    
-    -- positon menu items
-    
-    
-    -- add menu items to view
-    sceneGroup:insert( playButton );
-    sceneGroup:insert( continueButton );
-    sceneGroup:insert( optionButton );
-    sceneGroup:insert( infoButton );
-    
-    -- Add the dynamic animations to the menu to give it some pop.
-    animateMenu();
 end
 
 
@@ -214,11 +165,70 @@ function scene:show( event )
    local phase = event.phase;
 
    if ( phase == "will" ) then
-      -- Called when the scene is still off screen (but is about to come on screen).
+        -- Called when the scene is still off screen (but is about to come on screen).
+        checkControllers()
+        
+        -- Display the main menu background image
+        local background = display.newImageRect( "mainMenuBackground.png", "Menu");
+        background.x =  (display.contentWidth / 2) - ( background.width / 2 );
+
+        -- get te sprites for the menu
+        local menuSpriteSheet = graphics.newImageSheet("menuSprites", "Menu", menuData.getSheet());
+
+        -- Load all menu buttons
+        local playButton = widget.newButton
+        {
+            sheet = menuSpriteSheet,
+            defaultFrame = menuData.getFrame( "PlayButton" ),
+            overFrame = menuData.getFrame( "PlayButtonOver" ),
+            width = 300,
+            height = 300,
+            onEvent = onPlayReleased,
+        }
+
+        local continueButton = widget.newButton
+        {
+            sheet = menuSpriteSheet,
+            defaultFrame = menuData.getFrame( "ContinueButton" ),
+            overFrame = menuData.getFrame( "ContinueButtonOver" ),
+            width = 300,
+            height = 300,
+            onEvent = onContinueReleased
+        }
+
+        local optionButton = widget.newButton
+        {
+            sheet = menuSpriteSheet,
+            defaultFrame = menuData.getFrame( "OptionButton" ),
+            overFrame = menuData.getFrame( "OptionButtonOver" ),
+            width = 300,
+            height = 300,
+            onEvent = onOptionReleased
+        }
+
+        local infoButton = widget.newButton
+        {
+            sheet = menuSpriteSheet,
+            defaultFrame = menuData.getFrame( "InfoButton" ),
+            overFrame = menuData.getFrame( "InfoButtonOver" ),
+            width = 300,
+            height = 300,
+            onEvent = onInfoReleased
+        }
+
+        -- positon menu items
+
+
+        -- add menu items to view
+        sceneGroup:insert( playButton );
+        sceneGroup:insert( continueButton );
+        sceneGroup:insert( optionButton );
+        sceneGroup:insert( infoButton );
+        
    elseif ( phase == "did" ) then
       -- Called when the scene is now on screen.
-      -- Insert code here to make the scene come alive.
-      -- Example: start timers, begin animation, play audio, etc.
+      -- Add the dynamic animations to the menu to give it some pop.
+      animateMenu();
    end
 end
 
