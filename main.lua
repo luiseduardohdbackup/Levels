@@ -18,13 +18,12 @@ local analytics = require("analytics")
 -- forward declarations go here --
 
 -- local variables go here --
-local movement = nil
 
 -- Attach this instance of mte to the composer
 composer.mte = mte
 
 -- Register for flurry analytics
-analytics.init("5WJZ2FQXDJH66MD6H6GR")
+analytics.init("DSHWKCS2FCDXVMP8PW32")
 
 -- load menu screen
 function onIntroComplete( event )
@@ -97,7 +96,7 @@ end
 local function onNotification( event )
     if event.type == "remoteRegistration" then
         local PushToken = event.token
-        local PW_APPLICATION = "PUHSOOWH_APPLICATION_ID"    -- use your app id in pushwoosh
+        local PW_APPLICATION = "PUSHWOOSH_APPLICATION_ID"    -- use your app id in pushwoosh
         local PW_URL = "https://cp.pushwoosh.com/json/1.3/registerDevice"
         local deviceType = 1 -- default to iOS
         

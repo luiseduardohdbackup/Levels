@@ -1,6 +1,18 @@
 {
+    "Settings" :
+    {
+     "GridRows" : 5,
+     "GridColumns" : 4,
+     "GameScene" : "Game",
+     "GameEndScene" : "Summary"
+    },
     "Levels" :
     {
-       
+        "Level" :
+        {
+            "Name" : "Level1",
+            "Star1" : 100,
+            "Star2" : 400,
+            "Star3" : 800
+        }
     }
-}

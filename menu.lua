@@ -3,9 +3,10 @@
 -- menu.lua
 --
 -----------------------------------------------------------------------------------------
-local widget = require "widget";
+local widget = require ("widget");
 local composer = require( "composer" );
 local analytics = require( "analytics" );
+local levelManager = require("LevelManager.LevelManager")
 
 local scene = composer.newScene();
 
@@ -83,7 +84,7 @@ onPlayReleased = function( event )
     if event.phase == "pressed" then
         audio.play( mouseSquishSound )
     elseif event.phase == "release" then
-        composer.gotoScene( "Game" )
+        composer.gotoScene( "LevelManager\LevelManagerScene" )
     end
 end
 

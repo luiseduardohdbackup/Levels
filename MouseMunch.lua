@@ -17,9 +17,10 @@ local consumeCrumbs = nil;
 local activatePowerUp = nil;
 
 -- local variables
-local levelMusic = audio.loadSound( "Audio/Duke Ellington - Three Blind Mice.mp3" );
-local chewSound = audio.loadSound( "Audio/chew.mp3" );
-local dieSound = audio.loadSound( "Audio/rat_die.mp3" );
+local levelMusic = nil;
+local chewSound = nil;
+local dieSound = nil;
+local mouseDieSound = nil;
 
 local currentScore = 0;     -- Players current score for this plathrough
 local hiScore = 0;          -- Hi score for the game.
@@ -35,11 +36,9 @@ local
 ---------------------------------------------------------------------------------
 
 function onKeyEvent( event )
-    
 end
 
-function onInputdeviceStatusChanged( event )
-    
+function onInputdeviceStatusChanged( event ) 
 end
 
 
@@ -79,8 +78,14 @@ function scene:create( event )
     -- Setup Million tile Engine
     composer.mte.toggleWorldWrapX(true)
     composer.mte.toggleWorldWrapY(true)
+    
+    -- load audio and sprites
+    levelMusic = audio.loadSound( "Audio/Duke Ellington - Three Blind Mice.mp3" );
+    chewSound = audio.loadSound( "Audio/chew.mp3" );
+    dieSound = audio.loadSound( "Audio/rat_die.mp3" );
+    mouseDieSound = audio.loadsound( "Audio/mouse_squeak.mp3" )
+    
 end
-
 
 ------------------------------------------------------------------------------------
 -- show
@@ -94,17 +99,19 @@ end
 ------------------------------------------------------------------------------------
 function scene:show( event )
 
-   local sceneGroup = self.view
-   local phase = event.phase
+    local sceneGroup = self.view
+    local phase = event.phase
+    local params = event.params
 
-   if ( phase == "will" ) then
-      -- Called when the scene is still off screen (but is about to come on screen).
-      -- Load the correct level map
-   elseif ( phase == "did" ) then
-      -- Called when the scene is now on screen.
-      -- Insert code here to make the scene come alive.
-      -- Example: start timers, begin animation, play audio, etc.
-   end
+    if ( phase == "will" ) then
+       -- Load the correct level map
+       composer.mte.loadMap( params.level )
+       
+       -- position the player and the enemies
+       
+    elseif ( phase == "did" ) then
+      
+    end
 end
 
 

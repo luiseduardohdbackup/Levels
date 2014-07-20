@@ -6,9 +6,10 @@ local scene = composer.newScene()
 -- input controller commands and listeners
 local inputDevices = system.getInputDevices()
 local controllers = {}
+local game = nil
 
 -- local forward references should go here --
-local onfail = nil;
+local onFail = nil;
 
 ---------------------------------------------------------------------------------
 -- BEGINNING OF IMPLEMENTATION
@@ -22,6 +23,20 @@ function onInputdeviceStatusChanged( event )
     
 end
 
+------------------------------------------------------------------------------------
+-- onLoadConfiguration
+-- 
+-- handler for loading the configuration file for the level manager. This file
+-- contains all of the default settings such as the layout of level select screen
+-- and the scene to load for each level. What scene to load on level completion is
+-- also defined here. 
+------------------------------------------------------------------------------------
+--@Param: event
+--@Returns:
+------------------------------------------------------------------------------------
+function onLoadConfiguration( event )
+    
+end
 
 ------------------------------------------------------------------------------------
 -- create
@@ -58,18 +73,17 @@ function scene:create( event )
     
     -- Create a level manager for our game. We need to passs in the config file.
     -- We load the file here and if successful, we initialise the game levels.
-    data = system.pathForFile( "config.json", system.ResourceDirectory );
+    local data = system.pathForFile( "config.json", system.ResourceDirectory );
         
-    local fileHandle = io.open("config.json", "r");
+    local fileHandle = io.open( data, "r");
     local  configData = fileHandle:read("*a");
     io.close( fileHandle );
     
     if configData ~= nil then
         -- We have retrieved the config file
-        self.configData = json.decode( data );
+        self.configData = json.decode( configData );
         
         game = levelManager:new( configData );
-        game.Start();
     else
         native.showAlert( "Error!", "Game data failed to load", { "OK" }, onFail );
     end
@@ -93,6 +107,7 @@ function scene:show( event )
 
    if ( phase == "will" ) then
       -- Called when the scene is still off screen (but is about to come on screen).
+      game:start()
    elseif ( phase == "did" ) then
       -- Called when the scene is now on screen.
       -- Insert code here to make the scene come alive.
@@ -117,6 +132,7 @@ function scene:hide( event )
    local phase = event.phase
 
    if ( phase == "will" ) then
+       game:stop()
       -- Called when the scene is on screen (but is about to go off screen).
       -- Insert code here to "pause" the scene.
       -- Example: stop timers, stop animation, stop audio, etc.

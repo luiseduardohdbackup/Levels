@@ -35,4 +35,3 @@ end
 
 
 return class
-
