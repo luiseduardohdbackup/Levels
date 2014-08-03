@@ -1,10 +1,10 @@
 --------------------------------------------------------------------------------------------------
--- Class    : ParentGate
+-- Class    : Level Manager
 -- Author   : Peter Dwyer
 -- Created  : ${date}
 -- 
--- Parent gate overlay. Causes the user to have to answer a question before acessing the links 
--- on the info pages 
+-- Creates a grid of levels that the user can choose from and manages those levels based on the 
+-- score or some other criteria. 
 ------------------------------------------------------------------------------------------------- 
 local class = {}
 
@@ -13,7 +13,7 @@ local class = {}
 -- Forward Declarations
 
 -- local vars
-
+local levelgrid = display.newGroup();
 
 ------------------------------------------------------------------------------------
 -- New
@@ -33,5 +33,32 @@ function class:new( _p, argTable )
     return _p
 end 
 
+------------------------------------------------------------------------------------
+-- initialise
+-- 
+-- initialise the level manager based on the config file
+------------------------------------------------------------------------------------
+--@Param: config the configuration file to use
+--@Returns: nil
+------------------------------------------------------------------------------------
+function class:initalise()
+    -- create all levels 
+    
+    -- display levels in scroll grid
+    
+    -- add event listeners
+end
+
+------------------------------------------------------------------------------------
+-- onLevelSelected
+-- 
+-- Handle the uiser clicking on a level
+------------------------------------------------------------------------------------
+--@Param: event the event to handle 
+--@Returns: nil.
+------------------------------------------------------------------------------------
+function class:onLevelSelected( event )  
+    -- launch level as overlay
+end
 
 return class

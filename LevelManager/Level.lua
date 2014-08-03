@@ -130,7 +130,7 @@ function class:update( argTable, volatile )
         end
     else
         -- This level data is volatile so everything can change even re-locking the level!
-        -- As such we don't bother to validate any of te data. You broke it! You bought it!
+        -- As such we don't bother to validate any of the data. You broke it! You bought it!
         
         -- Set status of stars
         self.star1 = argTable.star1
