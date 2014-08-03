@@ -27,34 +27,37 @@ local levelIcon = require("Level.LevelIcon")
 --@Returns: new instance.
 ------------------------------------------------------------------------------------
 function class:new( _p, argTable )
-    _p = _p or {}
-    setmetatable( _p, self )
+    _p = _p or {};
+    setmetatable( _p, self );
     
-    self.__index = self
+    self.__index = self;
     
     -- Current level score
-    self.score = argTable.score
+    self.score = argTable.score;
     
     -- Status of stars
-    self.star1 = { anim = argTable.star1, starStatus=argTable.star1Status }
-    self.star1Threshold = argTable.star1Threshold
+    self.star1 = { anim = argTable.star1, starStatus=argTable.star1Status };
+    self.star1Threshold = argTable.star1Threshold;
     
-    self.star2 = { anim = argTable.star2, starStatus=argTable.star2Status }
-    self.star2Threshold = argTable.star2Threshold
+    self.star2 = { anim = argTable.star2, starStatus=argTable.star2Status };
+    self.star2Threshold = argTable.star2Threshold;
     
-    self.star3 = { anim = argTable.star3, starStatus=argTable.star3Status }
-    self.star3Threshold = argTable.star3Threshold
+    self.star3 = { anim = argTable.star3, starStatus=argTable.star3Status };
+    self.star3Threshold = argTable.star3Threshold;
     
     -- Lock status for the level
-    self.locked = argTable.locked
+    self.locked = argTable.locked;
+    
+    -- level scene name.
+    self.levelScene = argTable.levelScene;
     
     -- next level after this one 
-    self.nextLevel = argTable.nextLevel
+    self.nextLevel = argTable.nextLevel;
     
     -- Unlocking criteria. Can be either a score or stars or previous levels or all of these
-    self.requiredScore = argTable.requiredScore
-    self.requiredLevels = argTable.requiredLevels
-    self.requiredStars = argTable.requiredStars
+    self.requiredScore = argTable.requiredScore;
+    self.requiredLevels = argTable.requiredLevels;
+    self.requiredStars = argTable.requiredStars;
     
     -- Icon for this level
     local args = 
@@ -66,12 +69,12 @@ function class:new( _p, argTable )
         score = self.score;
         lockStatus = self.locked;
         
-        iconConfig = argTable.iconConfig
+        iconConfig = argTable.iconConfig;
     }
     
-    self:prepareLevelIcon( args )
+    self:prepareLevelIcon( args );
 
-    return _p
+    return _p;
 end 
 
 ------------------------------------------------------------------------------------
@@ -85,7 +88,7 @@ end
 --@Returns: 
 ------------------------------------------------------------------------------------
 function class:prepareLevelIcon( argTable )
-    self.levelIcon =  levelIcon:new( nil, argTable )
+    self.levelIcon =  levelIcon:new( nil, argTable );
 end
 
 ------------------------------------------------------------------------------------

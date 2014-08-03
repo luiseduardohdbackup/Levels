@@ -18,6 +18,7 @@ local analytics = require("analytics");
 
 -- local vars
 
+
 ------------------------------------------------------------------------------------
 -- New
 -- 
@@ -112,6 +113,7 @@ end
 --@Returns:
 ------------------------------------------------------------------------------------
 function class:draw( )
+    
     -- position the stars within the icon
     self.star1Sprite.x = self.iconConfig.star1.x;
     self.star1Sprite.y = self.iconConfig.star1.y;
